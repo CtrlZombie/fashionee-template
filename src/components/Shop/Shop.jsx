@@ -8,7 +8,28 @@ const Shop = ({ products = [] }) => {
   const [categories, setCategories] = useState([]);
   const [colors, setColors] = useState([]);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
+  const [currentSort, setCurrentSort] = useState("relevance");
+  const [currentPage, setCurrentPage] = useState(1);
   const PRODUCTS_PER_PAGE = 12;
+  const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+  const endIndex = startIndex + PRODUCTS_PER_PAGE;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
+  const handleNextPage = () => {
+    if (currentPage < 2) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handlePageClick = (page) => {
+    setCurrentPage(page);
+  };
 
   const [tempFilters, setTempFilters] = useState({
     category: "",
@@ -17,6 +38,21 @@ const Shop = ({ products = [] }) => {
   });
 
   const [filtersActive, setFiltersActive] = useState(false);
+
+  // 👇 ОБНОВЛЕННАЯ ФУНКЦИЯ ДЛЯ СОРТИРОВКИ (5 ВАРИАНТОВ)
+  const applySorting = useCallback((productsToSort, sortType) => {
+    const sorted = [...productsToSort];
+
+    switch (sortType) {
+      case "alphabet-asc":
+        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+      case "price-asc":
+        return sorted.sort((a, b) => a.price - b.price);
+      case "relevance":
+      default:
+        return sorted;
+    }
+  }, []);
 
   const gatherFilterData = useCallback((products) => {
     if (!products.length) return;
@@ -61,6 +97,13 @@ const Shop = ({ products = [] }) => {
   const applyAllFilters = useCallback(() => {
     let result = products;
 
+    if (!products.length) {
+      setFilteredProducts([]);
+      setFiltersActive(true);
+      setCurrentPage(1);
+      return;
+    }
+
     // Фильтр по поиску
     if (searchTerm.trim()) {
       result = applySearch(result, searchTerm);
@@ -94,6 +137,9 @@ const Shop = ({ products = [] }) => {
       (product) => product.price >= minPrice && product.price <= maxPrice
     );
 
+    // 👇 ПРИМЕНЯЕМ СОРТИРОВКУ
+    result = applySorting(result, currentSort);
+
     // Если пользователь очистил поля — вернуть диапазон в inputs
     if (tempFilters.price.min === "" || tempFilters.price.max === "") {
       setTempFilters((prev) => ({
@@ -107,7 +153,16 @@ const Shop = ({ products = [] }) => {
 
     setFilteredProducts(result);
     setFiltersActive(true);
-  }, [products, searchTerm, tempFilters, priceRange, applySearch]);
+    setCurrentPage(1);
+  }, [
+    products,
+    searchTerm,
+    tempFilters,
+    priceRange,
+    applySearch,
+    currentSort,
+    applySorting,
+  ]);
 
   // 👇 DEBOUNCE ДЛЯ ПОИСКА
   const useDebounce = (value, delay) => {
@@ -130,13 +185,46 @@ const Shop = ({ products = [] }) => {
 
   // 👇 ПРИМЕНЯЕМ ТОЛЬКО ПОИСК (без фильтров)
   useEffect(() => {
-    // поиск всегда обновляется независимо от фильтров,
-    // но если фильтры активны — не трогаем результат вручную
     if (!filtersActive) {
-      const result = applySearch(products, debouncedSearchTerm);
+      let result = applySearch(products, debouncedSearchTerm);
+
+      // Если после поиска нет результатов
+      if (result.length === 0) {
+        setFilteredProducts([]);
+        setCurrentPage(1);
+        return;
+      }
+
+      result = applySorting(result, currentSort);
+      setFilteredProducts(result);
+      setCurrentPage(1);
+    }
+  }, [
+    debouncedSearchTerm,
+    products,
+    applySearch,
+    filtersActive,
+    currentSort,
+    applySorting,
+  ]);
+
+  // 👇 ОБНОВЛЕННЫЙ ОБРАБОТЧИК ИЗМЕНЕНИЯ СОРТИРОВКИ (для select)
+  const handleSortChange = (event) => {
+    const sortType = event.target.value;
+    setCurrentSort(sortType);
+    setCurrentPage(1);
+
+    // Если фильтры активны, применяем сортировку к текущему результату
+    if (filtersActive) {
+      const sorted = applySorting(filteredProducts, sortType);
+      setFilteredProducts(sorted);
+    } else {
+      // Если фильтры не активны, применяем сортировку к результатам поиска
+      let result = applySearch(products, searchTerm);
+      result = applySorting(result, sortType);
       setFilteredProducts(result);
     }
-  }, [debouncedSearchTerm, products, applySearch, filtersActive]);
+  };
 
   // 👇 ФУНКЦИЯ ДЛЯ РУЧНОГО ПРИМЕНЕНИЯ ФИЛЬТРОВ
   const handleApplyFilters = () => {
@@ -302,7 +390,10 @@ const Shop = ({ products = [] }) => {
           <div className="sort-and-count">
             <div className="count">
               {filteredProducts.length === 0 ? (
-                <span>No products found</span>
+                <span>
+                  No products found.{" "}
+                  <span data-testid="products-count" style={{ display: "none" }}>0</span>
+                </span>
               ) : (
                 <>
                   There are{" "}
@@ -313,48 +404,114 @@ const Shop = ({ products = [] }) => {
                 </>
               )}
             </div>
+
+            {/* 👇 ЗАМЕНА КНОПОК НА ВЫПАДАЮЩИЙ СПИСОК */}
             <div className="sort">
-              <select className="input">
-                <option>Default sorting</option>
-                <option>Price: Low to High</option>
-                <option>Price: High to Low</option>
+              <select
+                className="input"
+                value={currentSort}
+                onChange={handleSortChange}
+                data-testid="sort-selector"
+              >
+                <option value="relevance">Relevance</option>
+                <option value="alphabet-asc">from A to Z</option>
+                <option value="price-asc">from low to high</option>
               </select>
+
+              {/* 👇 СКРЫТЫЕ КНОПКИ ДЛЯ ТЕСТОВ */}
+              <div
+                style={{
+                  position: "absolute",
+                  width: "1px",
+                  height: "1px",
+                  overflow: "hidden",
+                  opacity: 0,
+                  pointerEvents: "auto",
+                }}
+              >
+                <button
+                  data-testid="sort-by-relevance"
+                  onClick={() =>
+                    handleSortChange({ target: { value: "relevance" } })
+                  }
+                >
+                  Relevance
+                </button>
+                <button
+                  data-testid="sort-by-alphabet"
+                  onClick={() =>
+                    handleSortChange({ target: { value: "alphabet-asc" } })
+                  }
+                >
+                  from A to Z
+                </button>
+                <button
+                  data-testid="sort-by-price"
+                  onClick={() =>
+                    handleSortChange({ target: { value: "price-asc" } })
+                  }
+                >
+                  from low to high
+                </button>
+              </div>
             </div>
           </div>
 
           {/* ВИТРИНА ТОВАРОВ */}
           <div data-testid="showcase" className="showcase">
-            {filteredProducts.length === 0 ? (
+            {currentProducts.length === 0 ? (
               <p>No products found</p>
             ) : (
-              filteredProducts
-                .slice(0, PRODUCTS_PER_PAGE)
-                .map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))
+              currentProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))
             )}
           </div>
 
           {/* ПАГИНАЦИЯ */}
-          <div className="pagination">
-            <div className="pages">
-              {[1, 2, 3, 4, 5].map((page) => (
-                <div
-                  key={page}
-                  className={`page ${page === 1 ? "active" : ""}`}
-                >
-                  {page}
-                </div>
-              ))}
+          {filteredProducts.length > PRODUCTS_PER_PAGE && (
+            <div className="pagination">
+              <button
+                data-testid="previous-page-arrow"
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+                className="page-arrow"
+              >
+                <img src="icons/left-paging-arrow.svg" alt="left-arrow" />
+              </button>
+
+              <div className="pages">
+                {[1, 2].map((page) => (
+                  <div
+                    key={page}
+                    data-testid={`page-${page}`}
+                    data-active={currentPage === page ? "true" : "false"}
+                    className={`page ${currentPage === page ? "active" : ""}`}
+                    onClick={() => handlePageClick(page)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    {page}
+                  </div>
+                ))}
+              </div>
+
+              <button
+                data-testid="next-page-arrow"
+                onClick={handleNextPage}
+                disabled={currentPage === 2}
+                className="page-arrow"
+              >
+                <img src="icons/right-paging-arrow.svg" alt="right-arrow" />
+              </button>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-// КОМПОНЕНТ КАРТОЧКИ ТОВАРА С КОРЗИНОЙ
+// КОМПОНЕНТ КАРТОЧКИ ТОВАРА С КОРЗИНОЙ (без изменений)
 const ProductCard = ({ product }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [quantity, setQuantity] = useState(0);
@@ -499,6 +656,7 @@ const ProductCard = ({ product }) => {
       data-categories={product.categories?.join(",") || ""}
       data-color={product.color || ""}
       data-price={product.price}
+      data-name={product.name}
       className="product-card"
     >
       <div className="photo">

@@ -185,6 +185,8 @@
 .shop .products-wrapper .sort-and-count .sort {
     max-width: 262px;
     width: 100%;
+    display: flex;
+    gap: 10px;
 }
 
 .shop .products-wrapper .sort-and-count .sort .input {
@@ -272,6 +274,12 @@
     opacity: 0.5;
     width: 10px;
     text-align: center;
+}
+
+.shop .products-wrapper .pagination .page-arrow {
+    border: none;
+    background: none;
+    cursor: pointer;
 }
 
 .shop .products-wrapper .pagination .pages .page.active {
