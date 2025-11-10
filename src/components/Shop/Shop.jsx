@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useApp } from "../../context/AppContext";
+import { usePagination } from "../../hooks/usePagination";
+import ProductCard from "./ProductCard";
 import "./Shop.css";
 
 const Shop = ({ products = [] }) => {
@@ -9,27 +11,14 @@ const Shop = ({ products = [] }) => {
   const [colors, setColors] = useState([]);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
   const [currentSort, setCurrentSort] = useState("relevance");
-  const [currentPage, setCurrentPage] = useState(1);
-  const PRODUCTS_PER_PAGE = 12;
-  const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
-  const endIndex = startIndex + PRODUCTS_PER_PAGE;
-  const currentProducts = filteredProducts.slice(startIndex, endIndex);
 
-  const handleNextPage = () => {
-    if (currentPage < 2) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const handlePageClick = (page) => {
-    setCurrentPage(page);
-  };
+  const {
+    currentPage,
+    paginatedItems: currentProducts,
+    nextPage: handleNextPage,
+    prevPage: handlePrevPage,
+    goToPage: handlePageClick,
+  } = usePagination(filteredProducts);
 
   const [tempFilters, setTempFilters] = useState({
     category: "",
@@ -100,7 +89,7 @@ const Shop = ({ products = [] }) => {
     if (!products.length) {
       setFilteredProducts([]);
       setFiltersActive(true);
-      setCurrentPage(1);
+      handlePageClick(1);
       return;
     }
 
@@ -153,7 +142,7 @@ const Shop = ({ products = [] }) => {
 
     setFilteredProducts(result);
     setFiltersActive(true);
-    setCurrentPage(1);
+    handlePageClick(1);
   }, [
     products,
     searchTerm,
@@ -191,13 +180,13 @@ const Shop = ({ products = [] }) => {
       // Если после поиска нет результатов
       if (result.length === 0) {
         setFilteredProducts([]);
-        setCurrentPage(1);
+        handlePageClick(1);
         return;
       }
 
       result = applySorting(result, currentSort);
       setFilteredProducts(result);
-      setCurrentPage(1);
+      handlePageClick(1);
     }
   }, [
     debouncedSearchTerm,
@@ -212,7 +201,7 @@ const Shop = ({ products = [] }) => {
   const handleSortChange = (event) => {
     const sortType = event.target.value;
     setCurrentSort(sortType);
-    setCurrentPage(1);
+    handlePageClick(1);
 
     // Если фильтры активны, применяем сортировку к текущему результату
     if (filtersActive) {
@@ -392,7 +381,12 @@ const Shop = ({ products = [] }) => {
               {filteredProducts.length === 0 ? (
                 <span>
                   No products found.{" "}
-                  <span data-testid="products-count" style={{ display: "none" }}>0</span>
+                  <span
+                    data-testid="products-count"
+                    style={{ display: "none" }}
+                  >
+                    0
+                  </span>
                 </span>
               ) : (
                 <>
@@ -469,7 +463,7 @@ const Shop = ({ products = [] }) => {
           </div>
 
           {/* ПАГИНАЦИЯ */}
-          {filteredProducts.length > PRODUCTS_PER_PAGE && (
+          {filteredProducts.length > 12 && (
             <div className="pagination">
               <button
                 data-testid="previous-page-arrow"
@@ -511,267 +505,6 @@ const Shop = ({ products = [] }) => {
   );
 };
 
-// КОМПОНЕНТ КАРТОЧКИ ТОВАРА С КОРЗИНОЙ (без изменений)
-const ProductCard = ({ product }) => {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [quantity, setQuantity] = useState(0);
-  const { updateFavoritesCount, updateCartCount } = useApp();
 
-  // Загрузка состояния избранного и корзины из localStorage
-  useEffect(() => {
-    const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-    setIsFavorite(favorites.includes(product.id));
-
-    // Загружаем количество из корзины
-    const cartData = localStorage.getItem("cart");
-    let quantity = 0;
-
-    if (cartData) {
-      try {
-        const cart = JSON.parse(cartData);
-
-        if (Array.isArray(cart)) {
-          const cartItem = cart.find((item) => item.id === product.id);
-          quantity = cartItem ? cartItem.quantity : 0;
-        } else if (typeof cart === "object" && cart !== null) {
-          quantity = cart[product.id] || 0;
-        }
-      } catch {
-        console.error("Some error");
-      }
-    }
-
-    setQuantity(quantity);
-  }, [product.id]);
-
-  // Обработчик клика по кнопке избранного
-  const handleFavoriteClick = () => {
-    const newFavoriteState = !isFavorite;
-    setIsFavorite(newFavoriteState);
-
-    const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-
-    if (newFavoriteState) {
-      const updatedFavorites = [...favorites, product.id];
-      localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-    } else {
-      const updatedFavorites = favorites.filter((id) => id !== product.id);
-      localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-    }
-
-    updateFavoritesCount();
-  };
-
-  // Функции для работы с корзиной
-  const updateCartInLocalStorage = (productId, qty) => {
-    const cartData = localStorage.getItem("cart");
-    let cart = [];
-
-    if (cartData) {
-      try {
-        const parsedCart = JSON.parse(cartData);
-
-        // Конвертируем старый формат в новый
-        if (Array.isArray(parsedCart)) {
-          cart = parsedCart;
-        } else if (typeof parsedCart === "object" && parsedCart !== null) {
-          // Конвертируем объект в массив
-          cart = Object.entries(parsedCart).map(([id, quantity]) => ({
-            id: parseInt(id),
-            quantity: quantity,
-          }));
-        }
-      } catch {
-        console.error("Some error");
-      }
-    }
-
-    // Обновляем корзину
-    const existingItemIndex = cart.findIndex((item) => item.id === productId);
-
-    if (existingItemIndex > -1) {
-      cart[existingItemIndex].quantity = qty;
-    } else {
-      cart.push({ id: productId, quantity: qty });
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    updateCartCount();
-  };
-
-  const removeFromCartInLocalStorage = (productId) => {
-    const cartData = localStorage.getItem("cart");
-    let cart = [];
-
-    if (cartData) {
-      try {
-        const parsedCart = JSON.parse(cartData);
-
-        if (Array.isArray(parsedCart)) {
-          cart = parsedCart;
-        } else if (typeof parsedCart === "object" && parsedCart !== null) {
-          cart = Object.entries(parsedCart).map(([id, quantity]) => ({
-            id: parseInt(id),
-            quantity: quantity,
-          }));
-        }
-      } catch {
-        console.error("Some error");
-      }
-    }
-
-    const updatedCart = cart.filter((item) => item.id !== productId);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-    updateCartCount();
-  };
-
-  // Обработчики для кнопок корзины
-  const handleAddToCart = () => {
-    const newQuantity = 1;
-    setQuantity(newQuantity);
-    updateCartInLocalStorage(product.id, newQuantity);
-  };
-
-  const handleIncrease = () => {
-    const newQuantity = quantity + 1;
-    setQuantity(newQuantity);
-    updateCartInLocalStorage(product.id, newQuantity);
-  };
-
-  const handleDecrease = () => {
-    const newQuantity = quantity - 1;
-    if (newQuantity === 0) {
-      setQuantity(0);
-      removeFromCartInLocalStorage(product.id);
-    } else {
-      setQuantity(newQuantity);
-      updateCartInLocalStorage(product.id, newQuantity);
-    }
-  };
-
-  return (
-    <div
-      data-testid="product-card"
-      data-product-id={product.id}
-      data-categories={product.categories?.join(",") || ""}
-      data-color={product.color || ""}
-      data-price={product.price}
-      data-name={product.name}
-      className="product-card"
-    >
-      <div className="photo">
-        <div className="top-bar">
-          <div className="labels">
-            {product.oldPrice && <div className="label sale">Sale</div>}
-            <div className="label new">New</div>
-          </div>
-
-          {/* БЛОК ИЗБРАННОГО */}
-          <div className="favorites">
-            <button
-              data-testid="favorite-btn"
-              data-active={isFavorite}
-              onClick={handleFavoriteClick}
-              className="favorite-btn"
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: "5px",
-              }}
-            >
-              <img
-                src="/icons/heart.svg"
-                alt="favorites"
-                className="favorite-icon"
-                style={{
-                  filter: isFavorite
-                    ? "brightness(0) saturate(100%) invert(60%) sepia(90%) saturate(500%) hue-rotate(300deg) brightness(100%) contrast(100%)"
-                    : "none",
-                }}
-              />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="info">
-        <div className="name">{product.name}</div>
-        <div className="price">
-          <span className="current-price">${product.price}</span>
-          {product.oldPrice && (
-            <span className="old-price">${product.oldPrice}</span>
-          )}
-        </div>
-
-        {/* КНОПКА КОРЗИНЫ / СЧЁТЧИК */}
-        <div className="button-wrapper">
-          {quantity === 0 ? (
-            // КНОПКА "ADD TO CART" - показывается когда товара нет в корзине
-            <button
-              data-testid="add-to-cart-btn"
-              className="button"
-              onClick={handleAddToCart}
-              style={{ padding: "10px 20px", fontSize: "14px" }}
-            >
-              Add to Cart
-            </button>
-          ) : (
-            // СЧЁТЧИК - показывается когда товар в корзине
-            <div
-              className="quantity-counter"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                justifyContent: "center",
-              }}
-            >
-              <button
-                data-testid="decrease-qty-btn"
-                onClick={handleDecrease}
-                style={{
-                  padding: "8px 12px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  cursor: "pointer",
-                  borderRadius: "4px",
-                }}
-              >
-                -
-              </button>
-
-              <span
-                data-testid="product-quantity"
-                style={{
-                  minWidth: "20px",
-                  textAlign: "center",
-                  fontWeight: "bold",
-                  fontSize: "16px",
-                }}
-              >
-                {quantity}
-              </span>
-
-              <button
-                data-testid="increase-qty-btn"
-                onClick={handleIncrease}
-                style={{
-                  padding: "8px 12px",
-                  border: "1px solid #ccc",
-                  background: "white",
-                  cursor: "pointer",
-                  borderRadius: "4px",
-                }}
-              >
-                +
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export default Shop;

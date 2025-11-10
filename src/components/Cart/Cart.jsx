@@ -1,188 +1,175 @@
-import React, { useState } from "react";
-import "./Cart.css"; 
+import React, { useState, useEffect } from "react";
+import CartList from "./CartList";
+import YourOrder from "./YourOrder";
+import PromoCode from "./PromoCode";
+import "./Cart.css";
+import "../common/Commons.css";
 
-const Cart = () => {
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "Fashionee - cotton shirt (S)",
-      oldPrice: 52.99,
-      currentPrice: 35.99,
-      quantity: 1,
-      image: "./images/shirt.jpg", 
-    },
-    {
-      id: 2,
-      name: "Spray wrap skirt",
-      oldPrice: null,
-      currentPrice: 110.99,
-      quantity: 1,
-      image: "./images/skirt.jpg", 
-    },
-  ]);
-
+const Cart = ({ productsData }) => {
+  const [products, setProducts] = useState([]);
   const [promoCode, setPromoCode] = useState("");
+  const [isPromoValid, setIsPromoValid] = useState(false);
+
+  useEffect(() => {
+    const loadCartWithProductData = () => {
+      try {
+        if (!productsData || !Array.isArray(productsData)) {
+          return;
+        }
+
+        const cartData = localStorage.getItem("cart");
+        if (!cartData) return;
+
+        const cart = JSON.parse(cartData);
+        if (!Array.isArray(cart)) return;
+
+        const cartWithDetails = cart
+          .map((cartItem) => {
+            const productDetails = productsData.find(
+              (p) => p.id === cartItem.id
+            );
+            if (productDetails) {
+              return {
+                ...productDetails,
+                quantity: cartItem.quantity,
+                currentPrice: productDetails.price,
+              };
+            }
+            return null;
+          })
+          .filter(Boolean);
+
+        setProducts(cartWithDetails);
+      } catch (error) {
+        console.error("Error loading cart:", error);
+      }
+    };
+
+    loadCartWithProductData();
+  }, [productsData]);
 
   const updateQuantity = (id, change) => {
-    setProducts(
-      products.map((product) => {
-        if (product.id === id) {
-          const newQuantity = Math.max(0, product.quantity + change);
-          return { ...product, quantity: newQuantity };
-        }
-        return product;
-      })
-    );
+    setProducts((prev) => {
+      const newProducts = prev
+        .map((product) => {
+          if (product.id === id) {
+            const newQuantity = Math.max(0, product.quantity + change);
+            if (newQuantity === 0) return null;
+            return { ...product, quantity: newQuantity };
+          }
+          return product;
+        })
+        .filter(Boolean);
+
+      // Сохраняем в localStorage
+      const cartToSave = newProducts.map((p) => ({
+        id: p.id,
+        quantity: p.quantity,
+      }));
+      localStorage.setItem("cart", JSON.stringify(cartToSave));
+
+      return newProducts;
+    });
   };
 
   const removeProduct = (id) => {
-    setProducts(products.filter((product) => product.id !== id));
+    setProducts((prev) => {
+      const newProducts = prev.filter((p) => p.id !== id);
+      
+      // Сохраняем в localStorage
+      const cartToSave = newProducts.map((p) => ({
+        id: p.id,
+        quantity: p.quantity,
+      }));
+      localStorage.setItem("cart", JSON.stringify(cartToSave));
+      
+      return newProducts;
+    });
   };
 
   const calculateSubtotal = () => {
     return products.reduce(
-      (total, product) => total + product.currentPrice * product.quantity,
+      (total, product) =>
+        total + (product.currentPrice || product.price || 0) * product.quantity,
       0
     );
   };
 
+  const calculateDiscount = () => {
+    if (isPromoValid) {
+      return calculateSubtotal() * 0.1;
+    }
+    return 0;
+  };
+
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
-    const delivery = 16.0;
-    return subtotal + delivery;
+    const discount = calculateDiscount();
+    return Number(subtotal.toFixed(2));
   };
 
   const handlePromoSubmit = (e) => {
     e.preventDefault();
+    if (promoCode === "ilovereact") {
+      setIsPromoValid(true);
+    } else {
+      setIsPromoValid(false);
+    }
   };
 
+  const handleCheckout = () => {
+    // ✅ ИСПРАВЛЕННЫЙ ФОРМАТ ДАННЫХ КАК В ПРИМЕРЕ
+    const orderData = {
+      items: products.map((p) => ({
+        id: p.id,
+        name: p.name,
+        price: Number((p.currentPrice || p.price || 0).toFixed(2)),
+        quantity: p.quantity,
+      })),
+      promoCode: isPromoValid ? "ilovereact" : "", // строка с промокодом
+      discount: Number(calculateDiscount().toFixed(2)), // сумма скидки
+      deliveryPrice: 15, // вместо delivery
+      finalPrice: Number((calculateSubtotal() - calculateDiscount() + 15).toFixed(2)), // вместо total
+    };
+
+    // ✅ ВЫВОДИМ В ФОРМАТЕ КАК В ПРИМЕРЕ
+    console.log("Your order:", orderData);
+  };
+
+  // Вычисляем цены (оставляем старые названия для YourOrder компонента)
+  const subtotal = calculateSubtotal();
+  const discount = calculateDiscount();
+  const orderPrice = calculateTotal();
+  const totalWithDelivery = Number((orderPrice - discount + 15).toFixed(2));
+
   return (
-    <div className="cart" data-testid='cart-page'>
-      <div className="order-wrapper">
-        <div className="product-list">
-          {products.map((product) => (
-            <div key={product.id} className="product">
-              <div className="photo">
-                <img src={product.image} alt={product.name} />
-              </div>
-              <div className="product-info">
-                <div className="title">{product.name}</div>
-                <div className="price-wrapper">
-                  <div className="price-and-quantity">
-                    <div className="price">
-                      {product.oldPrice && (
-                        <div className="old-price">
-                          ${product.oldPrice.toFixed(2)}
-                        </div>
-                      )}
-                      <div className="current-price">
-                        ${product.currentPrice.toFixed(2)}
-                      </div>
-                    </div>
-                    <div className="quantity">
-                      <div
-                        className="count-button"
-                        onClick={() => updateQuantity(product.id, -1)}
-                      >
-                        -
-                      </div>
-                      <div className="count">{product.quantity}</div>
-                      <div
-                        className="count-button"
-                        onClick={() => updateQuantity(product.id, 1)}
-                      >
-                        +
-                      </div>
-                    </div>
-                  </div>
-                  <div className="total-price">
-                    ${(product.currentPrice * product.quantity).toFixed(2)}
-                  </div>
-                </div>
-                <div
-                  className="close"
-                  onClick={() => removeProduct(product.id)}
-                >
-                  ×
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="order">
-          <div className="title">Your order</div>
-          <div className="order-price-wrapper">
-            <div className="price-row">
-              <div className="name">Order price</div>
-              <div className="price">${calculateSubtotal().toFixed(2)}</div>
-            </div>
-            <div className="price-row">
-              <div className="name">Discount for promo code</div>
-              <div>No</div>
-            </div>
-            <div className="price-row delimiter">
-              <div className="name">
-                Delivery <span className="additional">(Aug 02 at 16:00)</span>
-              </div>
-              <div className="price">$16.00</div>
-            </div>
-            <div className="price-row total">
-              <div className="name">Total</div>
-              <div className="price">${calculateTotal().toFixed(2)}</div>
-            </div>
-          </div>
-          <div className="button-wrapper">
-            <button className="button">Checkout</button>
-            <div className="vertical-line"></div>
-          </div>
-        </div>
-      </div>
-
-      <div className="promo-code-wrapper">
-        <div className="info">
-          <div className="title">You Have A Promo Code?</div>
-          <div className="description">
-            To receive up-to-date promotional codes, subscribe to us on social
-            networks.
-          </div>
-        </div>
-        <form className="promo-code" onSubmit={handlePromoSubmit}>
-          <input
-            type="text"
-            name="promo-code"
-            className="input"
-            placeholder="Enter promo code"
-            value={promoCode}
-            onChange={(e) => setPromoCode(e.target.value)}
+    <div className="container">
+      <div className="cart" data-testid="cart-page">
+        <div className="order-wrapper">
+          <CartList
+            products={products}
+            onUpdateQuantity={updateQuantity}
+            onRemove={removeProduct}
           />
-          <div className="button-wrapper">
-            <button type="submit" className="button">
-              <img src="./icons/button-arrow.svg" alt="Arrow icon" />
-            </button>
-            <div className="vertical-line"></div>
-          </div>
-        </form>
-        <div className="find-us">
-          <div className="find-us-text">Find us here:</div>
-          <div className="find-us-links">
-            <div className="find-us-link">
-              <a href="#">FB</a>
-            </div>
-            <div className="line"></div>
-            <div className="find-us-link">
-              <a href="#">TW</a>
-            </div>
-            <div className="line"></div>
-            <div className="find-us-link">
-              <a href="#">INS</a>
-            </div>
-            <div className="line"></div>
-            <div className="find-us-link">
-              <a href="#">PT</a>
-            </div>
-          </div>
+
+          {products.length > 0 && (
+            <YourOrder
+              subtotal={orderPrice}
+              discount={discount}
+              delivery={15}
+              total={totalWithDelivery}
+              isPromoValid={isPromoValid}
+              onCheckout={handleCheckout}
+            />
+          )}
         </div>
+
+        <PromoCode
+          promoCode={promoCode}
+          setPromoCode={setPromoCode}
+          onSubmit={handlePromoSubmit}
+          isPromoValid={isPromoValid}
+        />
       </div>
     </div>
   );
