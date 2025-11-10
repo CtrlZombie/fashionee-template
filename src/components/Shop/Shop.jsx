@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useApp } from "../../context/AppContext";
 import { usePagination } from "../../hooks/usePagination";
 import ProductCard from "./ProductCard";
 import "./Shop.css";

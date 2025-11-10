@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useState, useEffect } from "react";
 import CartList from "./CartList";
 import YourOrder from "./YourOrder";
@@ -40,8 +41,8 @@ const Cart = ({ productsData }) => {
           .filter(Boolean);
 
         setProducts(cartWithDetails);
-      } catch (error) {
-        console.error("Error loading cart:", error);
+      } catch {
+        // Ошибка загрузки корзины
       }
     };
 
@@ -104,7 +105,6 @@ const Cart = ({ productsData }) => {
 
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
-    const discount = calculateDiscount();
     return Number(subtotal.toFixed(2));
   };
 
@@ -138,10 +138,9 @@ const Cart = ({ productsData }) => {
   };
 
   // Вычисляем цены (оставляем старые названия для YourOrder компонента)
-  const subtotal = calculateSubtotal();
-  const discount = calculateDiscount();
   const orderPrice = calculateTotal();
-  const totalWithDelivery = Number((orderPrice - discount + 15).toFixed(2));
+  const totalWithDelivery = Number((orderPrice - calculateDiscount() + 15).toFixed(2));
+
 
   return (
     <div className="container">
@@ -156,7 +155,7 @@ const Cart = ({ productsData }) => {
           {products.length > 0 && (
             <YourOrder
               subtotal={orderPrice}
-              discount={discount}
+              discount={calculateDiscount()}
               delivery={15}
               total={totalWithDelivery}
               isPromoValid={isPromoValid}

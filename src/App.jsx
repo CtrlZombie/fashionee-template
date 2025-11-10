@@ -17,8 +17,6 @@ const AppContent = () => {
   useEffect(() => {
     if (productsData?.products?.length) {
       setProducts(productsData.products);
-    } else {
-      console.error("Не удалось загрузить products из JSON");
     }
   }, []);
 

@@ -24,8 +24,8 @@ const ProductCard = ({ product }) => {
       }
 
       setQuantity(currentQuantity);
-    } catch (err) {
-      console.error("Ошибка при чтении корзины", err);
+    } catch {
+      // Ошибка обработана
     }
   }, [product.id]);
 
@@ -72,8 +72,8 @@ const ProductCard = ({ product }) => {
             quantity: Number(qty),
           }));
         }
-      } catch (err) {
-        console.error("Корзина повреждена, начинаем с чистого листа");
+      } catch {
+        // Ошибка обработана
       }
     }
 
@@ -113,8 +113,8 @@ const ProductCard = ({ product }) => {
         localStorage.setItem("cart", JSON.stringify(newCart));
         setQuantity(0);
         updateCartCount();
-      } catch (err) {
-        console.error("Ошибка при удалении из корзины", err);
+      } catch {
+        // Ошибка обработана
       }
       return;
     }
@@ -134,8 +134,8 @@ const ProductCard = ({ product }) => {
           updateCartCount();
         }
       }
-    } catch (err) {
-      console.error("Ошибка при обновлении корзины", err);
+    } catch {
+      // Ошибка обработана
     }
   };
 

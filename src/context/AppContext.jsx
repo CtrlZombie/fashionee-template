@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AppContext = createContext();
@@ -38,7 +39,7 @@ export const AppProvider = ({ children }) => {
       
       setCartCount(totalItems);
       } catch {
-        console.error('Error parsing cart data');
+        // Ошибка парсинга корзины
       }
   };
 
@@ -69,7 +70,9 @@ export const AppProvider = ({ children }) => {
 export const useApp = () => {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error('useApp must be used within an AppProvider');
+    throw new Error("useApp must be used within an AppProvider");
   }
   return context;
 };
+
+export default AppProvider;

@@ -2,7 +2,6 @@ import React from "react";
 
 const YourOrder = ({
   subtotal,
-  discount,
   delivery,
   total,
   onCheckout,

@@ -1,6 +1,6 @@
 import React from "react";
 
-const PromoCode = ({ promoCode, setPromoCode, onSubmit, isPromoValid }) => {
+const PromoCode = ({ promoCode, setPromoCode, onSubmit }) => {
   return (
     <div className="promo-code-wrapper">
       <div className="info">
