@@ -52,7 +52,9 @@ test.describe("Stage 4 — Корзина", () => {
     await expect(page.getByTestId("cart-empty")).toBeVisible();
   });
 
-  test("Изменение количества товара пересчитывает Order price", async ({ page }) => {
+  test("Изменение количества товара пересчитывает Order price", async ({
+    page,
+  }) => {
     await page.getByTestId("shop-btn").click();
 
     const secondProduct = page.getByTestId("product-card").nth(2);
@@ -97,10 +99,14 @@ test.describe("Stage 4 — Корзина", () => {
       await page.getByTestId("order-price").textContent()
     );
 
-    expect(orderPriceAfter).toBe(Number((orderPriceBefore - itemPrice).toFixed(2)));
+    expect(orderPriceAfter).toBe(
+      Number((orderPriceBefore - itemPrice).toFixed(2))
+    );
   });
 
-  test("Применение промокода 'ilovereact' даёт скидку 10%", async ({ page }) => {
+  test("Применение промокода 'ilovereact' даёт скидку 10%", async ({
+    page,
+  }) => {
     await page.getByTestId("shop-btn").click();
 
     const firstProduct = page.getByTestId("product-card").first();
@@ -154,7 +160,13 @@ test.describe("Stage 4 — Корзина", () => {
     expect(discountText.toLowerCase()).toContain("no");
   });
 
-  test("По клику на Checkout в консоль выводятся данные заказа", async ({ page }) => {
+  test("По клику на Checkout в консоль выводятся данные заказа", async ({
+    page,
+  }) => {
+    await page.getByTestId("shop-btn").click();
+    const firstProduct = page.getByTestId("product-card").first();
+    await firstProduct.getByTestId("add-to-cart-btn").click();
+    await page.getByTestId("cart-btn").click();
     const [message] = await Promise.all([
       page.waitForEvent("console"),
       page.getByTestId("checkout-btn").click(),

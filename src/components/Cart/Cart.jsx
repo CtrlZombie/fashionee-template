@@ -75,14 +75,14 @@ const Cart = ({ productsData }) => {
   const removeProduct = (id) => {
     setProducts((prev) => {
       const newProducts = prev.filter((p) => p.id !== id);
-      
+
       // Сохраняем в localStorage
       const cartToSave = newProducts.map((p) => ({
         id: p.id,
         quantity: p.quantity,
       }));
       localStorage.setItem("cart", JSON.stringify(cartToSave));
-      
+
       return newProducts;
     });
   };
@@ -118,7 +118,6 @@ const Cart = ({ productsData }) => {
   };
 
   const handleCheckout = () => {
-    // ✅ ИСПРАВЛЕННЫЙ ФОРМАТ ДАННЫХ КАК В ПРИМЕРЕ
     const orderData = {
       items: products.map((p) => ({
         id: p.id,
@@ -126,13 +125,15 @@ const Cart = ({ productsData }) => {
         price: Number((p.currentPrice || p.price || 0).toFixed(2)),
         quantity: p.quantity,
       })),
-      promoCode: isPromoValid ? "ilovereact" : "", // строка с промокодом
-      discount: Number(calculateDiscount().toFixed(2)), // сумма скидки
-      deliveryPrice: 15, // вместо delivery
-      finalPrice: Number((calculateSubtotal() - calculateDiscount() + 15).toFixed(2)), // вместо total
+      promoCode: isPromoValid ? "ilovereact" : "",
+      discount: Number(calculateDiscount().toFixed(2)),
+      deliveryPrice: 15,
+      finalPrice: Number(
+        (calculateSubtotal() - calculateDiscount() + 15).toFixed(2)
+      ),
     };
 
-    // ✅ ВЫВОДИМ В ФОРМАТЕ КАК В ПРИМЕРЕ
+    // ✅ Выводим даже если корзина пустая
     console.log("Your order:", orderData);
   };
 
