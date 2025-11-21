@@ -1,0 +1,303 @@
+.shop {
+  display: flex;
+  gap: 50px;
+
+  .sidebar {
+    max-width: 244px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+
+    .search {
+      position: relative;
+
+      .search-row {
+        padding: 0 25px 15px 0;
+      }
+
+      .search-icon {
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+    }
+
+    .sidebar-item {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+
+      .button {
+        color: #ffffff;
+        font-weight: 600;
+        font-size: 16px;
+        line-height: 16px;
+        border: none;
+        background: #000000;
+        padding: 17px 74px;
+        cursor: pointer;
+        width: 100%;
+        text-align: center;
+      }
+
+      .sidebar-title {
+        font-family: 'Josefin Sans', sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 29px;
+        letter-spacing: 0em;
+        text-align: left;
+        border-bottom: 2px solid #000000;
+        padding-bottom: 15px;
+      }
+
+      .sidebar-content {
+        .custom-list {
+          margin: 0 0 0 20px;
+        }
+
+        .price-bar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 15px;
+        }
+
+        .colors {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+          margin: 0 0 0 20px;
+
+          .color {
+            .color-checkbox {
+              position: absolute;
+              z-index: -1;
+              opacity: 0;
+
+              & + .color-name {
+                display: inline-flex;
+                align-items: center;
+                user-select: none;
+                cursor: pointer;
+                font-weight: 400;
+                font-size: 14px;
+                line-height: 24px;
+
+                &::before {
+                  content: '';
+                  display: inline-block;
+                  width: 15px;
+                  height: 15px;
+                  flex-shrink: 0;
+                  flex-grow: 0;
+                  border: 1px solid #eeeeee;
+                  margin-right: 15px;
+                  background-repeat: no-repeat;
+                  background-position: center center;
+                  box-sizing: border-box;
+                }
+              }
+
+              &:checked {
+                & + .color-name {
+                  color: #ff8e8e;
+
+                  &::before {
+                    background-image: url('../icons/check-pink.svg');
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        .reviewed-products {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+
+          .product-card {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+
+            .image {
+              width: 75px;
+              height: 75px;
+              background: #f1f2f3;
+            }
+
+            .info {
+              max-width: 150px;
+              display: flex;
+              flex-direction: column;
+              gap: 5px;
+
+              .name {
+                font-weight: 400;
+                font-size: 14px;
+                line-height: 140%;
+                color: #444444;
+              }
+
+              .price {
+                gap: 10px;
+
+                .current-price {
+                  font-size: 14px;
+                  line-height: 14px;
+                }
+
+                .old-price {
+                  font-size: 12px;
+                  line-height: 12px;
+                  text-decoration: line-through;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .products-wrapper {
+    max-width: 846px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+
+    .sort-and-count {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 27px;
+
+      .bold {
+        font-weight: 600;
+        font-size: 16px;
+        line-height: 27px;
+      }
+
+      .sort {
+        max-width: 262px;
+        width: 100%;
+        display: flex;
+        gap: 10px;
+
+        .input {
+          color: #000000;
+        }
+      }
+    }
+
+    .showcase {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 50px 30px;
+
+      .product-card {
+        max-width: 262px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+
+        .photo {
+          height: 22.5rem;
+          background: #f1f2f3;
+          position: relative;
+
+          .photo-image {
+            max-width: 262px;
+            max-height: 360px;
+          }
+
+          .top-bar {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 222px;
+
+            .labels {
+              display: flex;
+              gap: 15px;
+
+              .label {
+                font-weight: 800;
+                font-size: 10px;
+                color: #ffffff;
+                text-transform: uppercase;
+                padding: 5px 10px;
+                background: #ff8e8e;
+
+                &.new {
+                  background: #95ccb5;
+                }
+              }
+            }
+          }
+        }
+
+        .info {
+          display: flex;
+          flex-direction: column;
+          gap: 9px;
+
+          .name {
+            font-weight: 400;
+            font-size: 16px;
+            line-height: 27px;
+          }
+        }
+      }
+    }
+
+    .pagination {
+      display: flex;
+      width: 100%;
+      justify-content: center;
+      gap: 30px;
+      align-items: center;
+
+      .pages {
+        display: flex;
+        gap: 20px;
+
+        .page {
+          font-weight: 400;
+          font-size: 16px;
+          line-height: 16px;
+          border-bottom: 3px solid #000000;
+          height: 25px;
+          opacity: 0.5;
+          width: 10px;
+          text-align: center;
+
+          &.active {
+            opacity: 1;
+            font-family: 'Raleway', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+            line-height: 16px;
+            width: 22px;
+            text-align: center;
+          }
+        }
+      }
+
+      .page-arrow {
+        border: none;
+        background: none;
+        cursor: pointer;
+      }
+    }
+  }
+}

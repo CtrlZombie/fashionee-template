@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { usePagination } from "../../hooks/usePagination";
 import ProductCard from "./ProductCard";
-import "./Shop.css";
+import "./Shop.scss";
 
 const Shop = ({ products = [] }) => {
   const [searchTerm, setSearchTerm] = useState("");

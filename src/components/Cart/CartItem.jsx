@@ -21,8 +21,8 @@ const CartItem = ({ product, onUpdateQuantity, onRemove }) => {
 
   return (
     <div className="product" data-testid="cart-item" data-name={productName} data-price={currentPrice}>
-      <div className="photo">
-        <img src={product.image} alt={productName} />
+      <div>
+        <img src={product.image} alt={productName} className="photo"/>
       </div>
       <div className="product-info">
         <div

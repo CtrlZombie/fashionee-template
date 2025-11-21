@@ -212,6 +212,11 @@
     position: relative;
 }
 
+.shop .products-wrapper .showcase .product-card .photo .photo-image {
+    max-width: 262px;
+    max-height: 360px;
+}
+
 .shop .products-wrapper .showcase .product-card .photo .top-bar {
     position: absolute;
     top: 15px;

@@ -150,6 +150,7 @@ const ProductCard = ({ product }) => {
       data-name={product.name}
     >
       <div className="photo">
+        <img src={product.image} alt={product.name} className="photo-image"/>
         <div className="top-bar">
           <div className="labels">
             {product.oldPrice && <div className="label sale">Sale</div>}

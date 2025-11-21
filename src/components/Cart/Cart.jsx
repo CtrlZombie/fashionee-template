@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import CartList from "./CartList";
 import YourOrder from "./YourOrder";
 import PromoCode from "./PromoCode";
-import "./Cart.css";
+import "./Cart.scss";
 import "../common/Commons.css";
 
 const Cart = ({ productsData }) => {
