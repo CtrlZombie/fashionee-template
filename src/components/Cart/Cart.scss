@@ -1,0 +1,226 @@
+.cart {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+
+    .order-wrapper {
+        display: flex;
+        justify-content: space-between;
+        gap: 60px;
+        align-items: flex-start;
+
+        .product-list {
+            max-width: 720px;
+            width: 100%;
+            display: flex;
+            gap: 50px;
+            flex-direction: column;
+            border-bottom: 2px solid black;
+            padding-bottom: 10px;
+
+            .product {
+                display: flex;
+                position: relative;
+                gap: 30px;
+                align-items: center;
+                padding: 0 0 30px 0;
+                border-bottom: 1px solid rgba(68, 68, 68, 0.1);
+
+                .photo {
+                    width: 100%;
+                    max-width: 130px;
+                    height: 140px;
+                    background: #f1f2f3;
+                }
+
+                .product-info {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 25px;
+                    width: 100%;
+
+                    .title {
+                        font-family: 'Josefin Sans', sans-serif;
+                        font-weight: 400;
+                        font-size: 20px;
+                        line-height: 120%;
+                        color: #000000;
+                    }
+
+                    .price-wrapper {
+                        display: flex;
+                        gap: 15px;
+                        justify-content: space-between;
+                        align-items: center;
+
+                        .price-and-quantity {
+                            display: flex;
+                            align-items: center;
+                            gap: 48px;
+
+                            .quantity {
+                                display: flex;
+                                gap: 20px;
+                                padding: 17px 23px;
+                                background: #f8f8fb;
+
+                                .count {
+                                    font-weight: 400;
+                                    font-size: 16px;
+                                    line-height: 100%;
+                                    color: #000000;
+                                }
+
+                                .count-button {
+                                    cursor: pointer;
+                                    font-weight: 500;
+                                    font-size: 20px;
+                                    line-height: 100%;
+                                    color: #999999;
+                                }
+                            }
+                        }
+
+                        .total-price {
+                            font-family: 'Josefin Sans', sans-serif;
+                            font-weight: 400;
+                            font-size: 20px;
+                            line-height: 100%;
+                            color: #000000;
+                        }
+                    }
+
+                    .close {
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        padding: 3px 7px;
+                        border: 1px solid rgba(68, 68, 68, 0.1);
+                        color: rgba(68, 68, 68, 0.1);
+                        cursor: pointer;
+                    }
+                }
+            }
+        }
+
+        .order {
+            max-width: 360px;
+            width: 100%;
+            padding: 40px;
+            border: 1px solid rgba(68, 68, 68, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+
+            .title {
+                font-family: 'Josefin Sans', sans-serif;
+                font-weight: 400;
+                font-size: 32px;
+                line-height: 120%;
+                color: #000000;
+            }
+
+            .order-price-wrapper {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+
+                .price-row {
+                    display: flex;
+                    justify-content: space-between;
+                    gap: 15px;
+                    font-weight: 400;
+                    font-size: 16px;
+                    line-height: 170%;
+                    color: #444444;
+                    padding-bottom: 15px;
+                    border-bottom: 1px solid rgba(68, 68, 68, 0.1);
+
+                    &.delimiter {
+                        border-bottom: 2px solid #000000;
+                    }
+
+                    &.total {
+                        border: none;
+                    }
+
+                    .price {
+                        font-family: 'Josefin Sans', sans-serif;
+                        font-weight: 400;
+                        font-size: 20px;
+                        line-height: 100%;
+                        text-transform: capitalize;
+                        color: #444444;
+                    }
+
+                    .name {
+                        .additionale {
+                            font-size: 14px;
+                            line-height: 170%;
+                        }
+                    }
+
+                    .no-price {
+                        font-weight: 400;
+                        font-size: 16px;
+                        line-height: 170%;
+                        color: #444444;
+                    }
+                }
+            }
+
+            .button-wrapper {
+                max-width: unset;
+            }
+        }
+    }
+
+    .promo-code-wrapper {
+        max-width: 375px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+
+        .info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+
+            .title {
+                font-family: 'Josefin Sans', sans-serif;
+                font-weight: 400;
+                font-size: 32px;
+                line-height: 120%;
+                color: #000000;
+            }
+
+            .description {
+                font-weight: 400;
+                font-size: 16px;
+                line-height: 170%;
+                color: #444444;
+            }
+        }
+
+        .promo-code {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+
+            .button-wrapper {
+                max-width: 54px;
+
+                .button {
+                    padding: 17px 15px;
+                }
+
+                .vertical-line {
+                    width: 2px;
+                    height: 50px;
+                    background: #000000;
+                }
+            }
+        }
+    }
+}
