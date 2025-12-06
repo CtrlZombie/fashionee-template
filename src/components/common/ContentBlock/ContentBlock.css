@@ -1,0 +1,74 @@
+.content-block {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+}
+
+.content-block .left-area {
+    width: 850px;
+    height: 322px;
+    top: 103px;
+    left: -60px;
+    margin: 82px 1070px 45px 0;
+}
+
+.content-block .big-balls-top {
+    width: 322px;
+    height: 354px;
+    position: absolute;
+    left: 60px;
+    top: 82px;
+}
+
+.content-block .left-area .navigation-menu {
+    padding: 110px 280px 20px 390px;
+    border-bottom: 2px solid black;
+}
+
+.content-block .left-area .navigation-menu .page-name {
+    font-family: Josefin Sans;
+    font-weight: 400;
+    font-size: 80px;
+    line-height: 100%;
+}
+
+.content-block .left-area .navigation-menu .menu-first-item {
+    margin-top: 20px;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+    cursor: pointer;
+    border-left: 2px solid #000000;
+    padding-left: 12px;
+}
+
+.content-block .left-area .navigation-menu .menu-item {
+    margin-top: 20px;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+    cursor: pointer;
+    padding-left: 12px;
+}
+
+.content-block .left-area .navigation-menu .menu-item.active,
+.content-block .left-area .navigation-menu .menu-first-item.active {
+    border-left: none;
+}
+
+.content-block .left-area .navigation-menu .menu-item.active,
+.content-block .left-area .navigation-menu .menu-item:hover,
+.content-block .left-area .navigation-menu .menu-first-item:hover {
+    color: #FF8E8E;
+}
+
+.content-block .right-area .banner{
+    position: absolute;
+    width: 800px;
+    height: 400px;
+    top: 71px;
+    left: 940px;
+    background: rgba(241, 242, 243, 1);
+    margin: 0 120px 200px 150px;
+}
