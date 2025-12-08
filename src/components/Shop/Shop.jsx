@@ -310,7 +310,7 @@ const Shop = () => {
                 </div>
               </div>
               <div className="info">
-                <div className="name">{product.name}</div>
+                <div className="name" data-testid="product-name">{product.name}</div>
                 <div className="price">
                   <div className="current-price">${product.currentPrice.toFixed(2)}</div>
                   {product.oldPrice && (

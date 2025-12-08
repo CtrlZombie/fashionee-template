@@ -8,16 +8,22 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "jest --config jest.config.js",
-    "test:unit": "jest --config jest.config.js",
+    "test": "jest",
+    "test:unit": "jest --testPathPattern=src",
+    "test:integration": "jest __tests__/integration",
+    "test:e2e": "playwright test __tests__/e2e",
     "test:stage1": "playwright test __tests__/e2e/stage1",
     "test:stage2": "npm run test:stage1 && playwright test __tests__/e2e/stage2",
     "test:stage3": "npm run test:stage2 && playwright test __tests__/e2e/stage3",
-    "test:stage4": "npm run test:stage3 && playwright test __tests__/e2e/stage4"
+    "test:stage4": "npm run test:stage3 && playwright test __tests__/e2e/stage4",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "react": "19.1.1",
-    "react-dom": "19.1.1"
+    "react-dom": "19.1.1",
+    "react-router-dom": "^7.10.1"
   },
   "devDependencies": {
     "@babel/core": "^7.28.5",
